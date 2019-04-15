@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MobileSysteme</string>
     <string name="sensor_motion">Accelerometer Sensor</string>
-    <string name="sensor_environment">Licht Sensor</string>
-    <string name="sensor_position">GPS Sensor</string>
+    <string name="sensor_environment">Light Sensor</string>
+    <string name="sensor_position">GPS data</string>
+    <string name="get_gps_data">Get GPS data</string>
 </resources>

@@ -44,5 +44,13 @@
             android:text="@string/sensor_position"
             android:textColor="@color/colorPrimaryDark" />
 
+        <Button
+            android:id="@+id/main_button_get_gps"
+            android:layout_gravity="center"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/get_gps_data" />
+
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>
