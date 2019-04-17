@@ -5,6 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +24,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView tf_sensor_accelerometer, tf_sensor_light, tf_sensor_gps;
     private SensorManager sensorManager;
     private Sensor sensor_accelerometer;
+    private Sensor sensor_light;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
 
 
     @Override
@@ -40,11 +47,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor_accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        //Get a light sensor
+        sensor_light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+
         //Set listener on button
         button_gps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Implement here get gps data
+
             }
         });
     }
@@ -61,12 +72,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 break;
             //Implement here the light sensor
             case Sensor.TYPE_LIGHT:
-                //Do something
+                tf_sensor_light.setText("Light Sensor: " + event.values[0]);
                 break;
             default:
                 break;
         }
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -77,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(this, sensor_accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+
+        sensorManager.registerListener(this, sensor_light, SensorManager.SENSOR_DELAY_NORMAL);
 
     }
 
