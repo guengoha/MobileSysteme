@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private LocationListener locationListener;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,13 +52,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         button_gps = findViewById(R.id.main_button_get_gps);
 
         //Get a accelerometer sensor
-                sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor_accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         //Get a light sensor
         sensor_light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        Log.i(TAG, "Requesting permissions for using gps");
         //Request permission for using gps
         ActivityCompat.requestPermissions(
                 MainActivity.this,
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onLocationChanged(Location location) {
                 Log.i(TAG, "Location received");
-                tf_sensor_gps.append("n " + location.getLongitude() + " " + location.getLatitude());
+                tf_sensor_gps.setText("Latitude: " + location.getLatitude() + " - Longitude: " + location.getLongitude());
             }
 
             @Override
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch(requestCode) {
+        switch (requestCode) {
             case 1: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ActivityCompat.checkSelfPermission(this,
@@ -108,9 +108,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         @Override
                         public void onClick(View view) {
                             try {
-                                Location firstLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                                tf_sensor_gps.append("n " + firstLocation.getLongitude() + " " + firstLocation.getLatitude());
-                            } catch(SecurityException se) {
+                                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 50, locationListener);
+                            } catch (SecurityException se) {
                                 Log.w(TAG, se.getMessage());
                             }
                         }
@@ -128,8 +127,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             case Sensor.TYPE_ACCELEROMETER:
                 //Read out the x value, when greater than 0 then the phone is turned to the left
                 if (event.values[0] > 0) {
-                        Log.i(TAG, "Accelerometer Sensor is triggered, phone is turned to the left");
-                        tf_sensor_accelerometer.setBackgroundColor(ContextCompat.getColor(this, R.color.colorOrange));
+                    tf_sensor_accelerometer.setBackgroundColor(ContextCompat.getColor(this, R.color.colorOrange));
                 }
                 break;
             //Implement here the light sensor
