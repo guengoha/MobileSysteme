@@ -23,6 +23,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.security.Security;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private static final String TAG = "MainActivity";
@@ -34,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor sensor_light;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private Location location;
 
 
 
@@ -59,9 +60,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensor_light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        //Request permission for using gps
+        ActivityCompat.requestPermissions(
+                MainActivity.this,
+                new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                },
+                1);
+
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                Log.i(TAG, "Location received");
                 tf_sensor_gps.append("n " + location.getLongitude() + " " + location.getLatitude());
             }
 
@@ -77,31 +88,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onProviderDisabled(String s) {
-                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(i);
             }
         };
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-        } else {
-            button_gps.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Implement here get gps data
-                    //if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACC))
-                    //ActivityCompat.requestPermissions(this);
-                    locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
-                }
-            });
-        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+                    button_gps.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            try {
+                                Location firstLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                                tf_sensor_gps.append("n " + firstLocation.getLongitude() + " " + firstLocation.getLatitude());
+                            } catch(SecurityException se) {
+                                Log.w(TAG, se.getMessage());
+                            }
+                        }
+                    });
+                } else {
+                    Log.w(TAG, "Location permission denied");
+                }
+            }
+        }
     }
 
     @Override
